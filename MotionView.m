@@ -8,7 +8,7 @@
 
 #import "MotionView.h"
 
-#define FRICTION_DEFAULT      0.15f
+#define FRICTION_DEFAULT      0.25f
 #define BOUNCE_SCALE_DEFAULT  0.02f
 #define MIN_SCALE_DEFAULT     0.5f
 
