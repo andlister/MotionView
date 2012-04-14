@@ -8,26 +8,29 @@
 
 #import "MotionView.h"
 
-#define FRICTION_DEFAULT 0.25f
-#define BUMP_SCALE       0.01f
-#define MIN_SCALE        0.5f
+#define FRICTION_DEFAULT      0.15f
+#define BOUNCE_SCALE_DEFAULT  0.02f
+#define MIN_SCALE_DEFAULT     0.5f
 
 
 @interface MotionView ()
 
 @property (nonatomic, assign) float angle;
 @property (nonatomic, assign) float lastScale;
-@property (nonatomic, assign) float friction;
+
+- (void)bounce;
 
 @end
 
 
 @implementation MotionView
 
-@synthesize angle     = _angle;
-@synthesize lastScale = _lastScale;
-@synthesize friction  = _friction;
-@synthesize options   = _options;
+@synthesize angle       = _angle;
+@synthesize lastScale   = _lastScale;
+@synthesize friction    = _friction;
+@synthesize options     = _options;
+@synthesize bounceScale = _bounceScale;
+
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -37,6 +40,8 @@
         self.backgroundColor = [UIColor clearColor];
         self.lastScale = 1.0;
         self.friction = FRICTION_DEFAULT; 
+        self.bounceScale = BOUNCE_SCALE_DEFAULT;
+        self.options = MotionOptionSliding | TapOptionBounce;
         
         UIRotationGestureRecognizer *rotateRecognizer = [[[UIRotationGestureRecognizer alloc] initWithTarget:self 
                                                                                                       action:@selector(didRotate:)] autorelease];
@@ -66,7 +71,7 @@
 {
     if ([[self superview].subviews indexOfObject:self] < [[self superview].subviews count]-1) 
     {
-        if (self.options & TouchSelectBounce) 
+        if (self.options & TapOptionBounce) 
             [self bounce];
         else
             [[self superview] bringSubviewToFront:self];
@@ -76,12 +81,12 @@
 - (void)bounce 
 {
     [UIView animateWithDuration:0.1 animations:^(void) {
-        self.transform = CGAffineTransformScale(self.transform, self.lastScale+BUMP_SCALE, self.lastScale+BUMP_SCALE);
+        self.transform = CGAffineTransformScale(self.transform, self.lastScale+self.bounceScale, self.lastScale+self.bounceScale);
         [[self superview] bringSubviewToFront:self];
         
     }completion:^(BOOL finished) {
         [UIView animateWithDuration:0.2 animations:^(void) {
-            self.transform = CGAffineTransformScale(self.transform, self.lastScale-BUMP_SCALE, self.lastScale-BUMP_SCALE);
+            self.transform = CGAffineTransformScale(self.transform, self.lastScale-self.bounceScale, self.lastScale-self.bounceScale);
         }];
     }];
 }
@@ -132,7 +137,7 @@
     
     if ([sender state] == UIGestureRecognizerStateEnded) 
     {
-        if (self.options & MotionSliding) 
+        if (self.options & MotionOptionSliding) 
         {
             CGPoint translation = [sender translationInView:[self superview]];
             CGPoint velocity = [sender velocityInView:[self superview]];
@@ -172,7 +177,7 @@
         CGFloat currentScale = [[self.layer valueForKeyPath:@"transform.scale"] floatValue] + ([sender scale] - self.lastScale);
         CGFloat scale = 1.0 - (self.lastScale - [sender scale]);
         
-        if (currentScale > MIN_SCALE) 
+        if (currentScale > MIN_SCALE_DEFAULT) 
         {
             self.transform = CGAffineTransformScale(self.transform, scale, scale);
             self.lastScale = [sender scale];

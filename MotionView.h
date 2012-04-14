@@ -10,23 +10,32 @@
 
 typedef enum 
 {
-    MotionStatic            = 1,
-    MotionSliding           = 2,
+    MotionOptionStatic   = 1,
+    MotionOptionSliding  = 2,
     
-} MotionOptions;
+} MotionOption;
 
 typedef enum 
 {
-    TouchSelectNoAnimation  = 4,
-    TouchSelectBounce       = 8
+    TapOptionNoAnimation = 4,
+    TapOptionBounce      = 8
     
-} TouchSelectOptions;
+} TapOption;
 
 
 @interface MotionView : UIView <UIGestureRecognizerDelegate>
 
+
+// An options property that defines the pan and tap gesture characteristics
+// Default is MotionOptionSliding | TapOptionBounce
 @property (nonatomic, assign) int   options;
 
-- (void)bounce;
+// Sets the friction value when sliding to a stop. 
+// Default: 0.15
+@property (nonatomic, assign) float friction;
+
+// Sets how much the view scales during a bounce animation. 
+// Default: 0.02
+@property (nonatomic, assign) float bounceScale;
 
 @end
