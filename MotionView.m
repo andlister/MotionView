@@ -38,15 +38,18 @@
         self.lastScale = 1.0;
         self.friction = FRICTION_DEFAULT; 
         
-        UIRotationGestureRecognizer *rotateRecognizer = [[[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(didRotate:)] autorelease];
+        UIRotationGestureRecognizer *rotateRecognizer = [[[UIRotationGestureRecognizer alloc] initWithTarget:self 
+                                                                                                      action:@selector(didRotate:)] autorelease];
         rotateRecognizer.delegate = self;
         [self addGestureRecognizer:rotateRecognizer];
         
-        UIPinchGestureRecognizer *pinchRecognizer = [[[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(didPinch:)] autorelease];
+        UIPinchGestureRecognizer *pinchRecognizer = [[[UIPinchGestureRecognizer alloc] initWithTarget:self 
+                                                                                               action:@selector(didPinch:)] autorelease];
         pinchRecognizer.delegate = self;
         [self addGestureRecognizer:pinchRecognizer];
         
-        UIPanGestureRecognizer *panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPan:)] autorelease];
+        UIPanGestureRecognizer *panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self 
+                                                                                         action:@selector(didPan:)] autorelease];
         panRecognizer.delegate = self;
         [self addGestureRecognizer:panRecognizer];
 
@@ -106,12 +109,10 @@
     CGPoint finish = [self adjustForScreenRestraints:position];
     
     [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^(void) {
+        
         [self setCenter:CGPointMake(finish.x, finish.y)];
         
-    } completion:^(BOOL finished) {   
-    
-    }];
-    
+    } completion:^(BOOL finished) { }];
 }
 
 #pragma mark - UIGestureRecognizerDelegate
@@ -184,9 +185,12 @@
     float scale = 0.01;
     
     [UIView animateWithDuration:0.05 animations:^(void) {
+        
         self.transform = CGAffineTransformScale(self.transform, self.lastScale+scale, self.lastScale+scale);
         [[self superview] bringSubviewToFront:self];
+        
     } completion:^(BOOL finished) {   
+        
         [UIView animateWithDuration:0.05 animations:^(void) {
             self.transform = CGAffineTransformScale(self.transform, self.lastScale-scale, self.lastScale-scale);
         }];
