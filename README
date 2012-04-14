@@ -46,3 +46,7 @@ TapOption:
  TapOptionNoAnimation - No animation. The view will immediately appear on top.
  TapOptionBounce (default) - The view will appear to bounce to the top.
 
+
+NOTE:
+
+This is was something I played around with out of interest of understanding how a touch interface could be used to move, scale, select items (UIView derived items) with animations to mimic a regular surface. Hence it is not complete and may not always behave as expected. 
