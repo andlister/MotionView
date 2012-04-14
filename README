@@ -1,0 +1,48 @@
+MotionView
+----------
+
+MotionView is intended to be used as a base class to your views to give them motion capabilities. Using touch gestures the derived view will be able to be moved in the following ways:
+
+ - moved around
+ - rotated
+ - pinch scaled 
+ - hit selected to become the front most view (when there is more than one view overlapping each other).
+
+
+Tasks
+-----
+
+A MotionView have the following options it can set to determine its characteristics:
+
+
+@property (nonatomic, assign) int options;
+
+An options property that defines the pan and tap gesture characteristics. 
+The default options value is  MotionOptionSliding | TapOptionBounce
+
+
+@property (nonatomic, assign) float friction;
+
+Sets the friction value when sliding to a stop. 
+Default: 0.15
+
+
+@property (nonatomic, assign) float bounceScale;
+
+Sets how much the view scales during a bounce animation. 
+Default: 0.02
+
+
+
+MotionOption:
+
+The motion option sets the gesture characteristics of a panning view.
+
+ MotionStatic - When the touch pan gesture ends the view stops where it is.
+ MotionSliding (default) - When the touch pan gesture ends the view slides to a stop. 
+
+TapOption:
+
+ TapOptionNoAnimation - No animation. The view will immediately appear on top.
+ TapOptionBounce (default) - The view will appear to bounce to the top.
+
