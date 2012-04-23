@@ -41,7 +41,7 @@
         self.lastScale = 1.0;
         self.friction = FRICTION_DEFAULT; 
         self.bounceScale = BOUNCE_SCALE_DEFAULT;
-        self.options = MotionOptionSliding | TapOptionBounce;
+        self.options = MotionOptionSlidingStop | TapOptionBounce;
         
         UIRotationGestureRecognizer *rotateRecognizer = [[[UIRotationGestureRecognizer alloc] initWithTarget:self 
                                                                                                       action:@selector(didRotate:)] autorelease];
@@ -80,13 +80,13 @@
 
 - (void)bounce 
 {
-    [UIView animateWithDuration:0.1 animations:^(void) {
+    [UIView animateWithDuration:0.2 animations:^(void) {
         self.transform = CGAffineTransformScale(self.transform, self.lastScale+self.bounceScale, self.lastScale+self.bounceScale);
         [[self superview] bringSubviewToFront:self];
         
     }completion:^(BOOL finished) {
         [UIView animateWithDuration:0.2 animations:^(void) {
-            self.transform = CGAffineTransformScale(self.transform, self.lastScale-self.bounceScale, self.lastScale-self.bounceScale);
+            self.transform = CGAffineTransformIdentity;
         }];
     }];
 }
@@ -127,23 +127,26 @@
 {    
     [[self superview] bringSubviewToFront:self];
     
-    if ([sender state] == UIGestureRecognizerStateBegan || [sender state] == UIGestureRecognizerStateChanged) 
-    {
-        CGPoint translation = [sender translationInView:[self superview]];
-        self.center = CGPointMake(self.center.x + translation.x, self.center.y + translation.y);
-        
-        [sender setTranslation:CGPointZero inView:[self superview]];
-    }
+    if (!((self.options & MotionOptionNoPanning) == MotionOptionNoPanning)) {
     
-    if ([sender state] == UIGestureRecognizerStateEnded) 
-    {
-        if (self.options & MotionOptionSliding) 
+        if ([sender state] == UIGestureRecognizerStateBegan || [sender state] == UIGestureRecognizerStateChanged) 
         {
             CGPoint translation = [sender translationInView:[self superview]];
-            CGPoint velocity = [sender velocityInView:[self superview]];
-            CGPoint finish = CGPointMake(self.center.x + translation.x + (self.friction * velocity.x), 
-                                             self.center.y + translation.y + (self.friction * velocity.y));
-            [self slideToPosition:finish];
+            self.center = CGPointMake(self.center.x + translation.x, self.center.y + translation.y);
+            
+            [sender setTranslation:CGPointZero inView:[self superview]];
+        }
+        
+        if ([sender state] == UIGestureRecognizerStateEnded) 
+        {
+            if (self.options & MotionOptionSlidingStop) 
+            {
+                CGPoint translation = [sender translationInView:[self superview]];
+                CGPoint velocity = [sender velocityInView:[self superview]];
+                CGPoint finish = CGPointMake(self.center.x + translation.x + (self.friction * velocity.x), 
+                                                 self.center.y + translation.y + (self.friction * velocity.y));
+                [self slideToPosition:finish];
+            }
         }
     }
 }
@@ -211,7 +214,7 @@
 
 - (void)didChangeOrientation:(NSNotification *)notification
 {
-
+    return;
 }
 
 @end

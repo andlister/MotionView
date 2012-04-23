@@ -7,18 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 
 typedef enum 
 {
-    MotionOptionStatic   = 1,
-    MotionOptionSliding  = 2,
+    MotionOptionStatic       = 1,
+    MotionOptionSlidingStop  = 2,
+    MotionOptionNoPanning    = 4,
     
 } MotionOption;
 
 typedef enum 
 {
-    TapOptionNoAnimation = 4,
-    TapOptionBounce      = 8
+    TapOptionNoAnimation     = 8,
+    TapOptionBounce          = 16
     
 } TapOption;
 
