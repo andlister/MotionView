@@ -40,4 +40,6 @@ typedef enum
 // Default: 0.02
 @property (nonatomic, assign) float bounceScale;
 
+- (id)initWithFrame:(CGRect)frame options:(int)options;
+
 @end

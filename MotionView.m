@@ -32,8 +32,7 @@
 @synthesize bounceScale = _bounceScale;
 
 
-- (id)initWithFrame:(CGRect)frame
-{
+- (id)initWithFrame:(CGRect)frame options:(int)options {
     self = [super initWithFrame:frame];
     if (self) 
     {
@@ -41,31 +40,40 @@
         self.lastScale = 1.0;
         self.friction = FRICTION_DEFAULT; 
         self.bounceScale = BOUNCE_SCALE_DEFAULT;
-        self.options = MotionOptionSlidingStop | TapOptionBounce;
+        self.options = options;
         
-        UIRotationGestureRecognizer *rotateRecognizer = [[[UIRotationGestureRecognizer alloc] initWithTarget:self 
-                                                                                                      action:@selector(didRotate:)] autorelease];
-        rotateRecognizer.delegate = self;
-        [self addGestureRecognizer:rotateRecognizer];
+        if ((self.options & MotionOptionStatic) == NO) {
+            
+            UIRotationGestureRecognizer *rotateRecognizer = [[[UIRotationGestureRecognizer alloc] initWithTarget:self 
+                                                                                                          action:@selector(didRotate:)] autorelease];
+            rotateRecognizer.delegate = self;
+            [self addGestureRecognizer:rotateRecognizer];
+            
+            UIPinchGestureRecognizer *pinchRecognizer = [[[UIPinchGestureRecognizer alloc] initWithTarget:self 
+                                                                                                   action:@selector(didPinch:)] autorelease];
+            pinchRecognizer.delegate = self;
+            [self addGestureRecognizer:pinchRecognizer];
+            
+            UIPanGestureRecognizer *panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self 
+                                                                                             action:@selector(didPan:)] autorelease];
+            panRecognizer.delegate = self;
+            [self addGestureRecognizer:panRecognizer];
+        }
         
-        UIPinchGestureRecognizer *pinchRecognizer = [[[UIPinchGestureRecognizer alloc] initWithTarget:self 
-                                                                                               action:@selector(didPinch:)] autorelease];
-        pinchRecognizer.delegate = self;
-        [self addGestureRecognizer:pinchRecognizer];
-        
-        UIPanGestureRecognizer *panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self 
-                                                                                         action:@selector(didPan:)] autorelease];
-        panRecognizer.delegate = self;
-        [self addGestureRecognizer:panRecognizer];
-
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didChangeOrientation:)
                                                      name:@"UIDeviceOrientationDidChangeNotification" object:nil];
     }
-
+    
     return self;
 }
+
+- (id)initWithFrame:(CGRect)frame
+{
+    return [self initWithFrame:frame options:MotionOptionSlidingStop | TapOptionBounce];
+}
+
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
