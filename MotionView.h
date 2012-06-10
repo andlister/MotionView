@@ -9,13 +9,15 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 
+
+// Panning options (pick one)
 typedef enum 
 {
-    MotionOptionStatic       = 1,
-    MotionOptionSlidingStop  = 2,
-    MotionOptionNoPanning    = 4,
+    PanningOptionOn            = 1,  // Panning is on and view stays at where gesture finished.
+    PanningOptionSlidingStop   = 2,  // Panning is on and view slides to stop with friction.
+    PanningOptionOff           = 4,  // Panning is off.
     
-} MotionOption;
+} PanningOption;
 
 typedef enum 
 {
@@ -23,6 +25,21 @@ typedef enum
     TapOptionBounce          = 16
     
 } TapOption;
+
+typedef enum 
+{
+    RotateOptionOn           = 32,
+    RotateOptionOff          = 64
+    
+} RotateOption;
+
+
+typedef enum 
+{
+    PinchOptionOn           = 128,
+    PinchOptionOff          = 256
+    
+} PinchOption;
 
 
 @interface MotionView : UIView <UIGestureRecognizerDelegate>

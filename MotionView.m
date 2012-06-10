@@ -15,8 +15,11 @@
 
 @interface MotionView ()
 
-@property (nonatomic, assign) float angle;
-@property (nonatomic, assign) float lastScale;
+@property (nonatomic, assign) float                       angle;
+@property (nonatomic, assign) float                       lastScale;
+@property (nonatomic, retain) UIRotationGestureRecognizer *rotateRecognizer;
+@property (nonatomic, retain) UIPinchGestureRecognizer    *pinchRecognizer;
+@property (nonatomic, retain) UIPanGestureRecognizer      *panRecognizer;
 
 - (void)bounce;
 
@@ -25,11 +28,14 @@
 
 @implementation MotionView
 
-@synthesize angle       = _angle;
-@synthesize lastScale   = _lastScale;
-@synthesize friction    = _friction;
-@synthesize options     = _options;
-@synthesize bounceScale = _bounceScale;
+@synthesize angle            = _angle;
+@synthesize lastScale        = _lastScale;
+@synthesize friction         = _friction;
+@synthesize options          = _options;
+@synthesize bounceScale      = _bounceScale;
+@synthesize rotateRecognizer = _rotateRecognizer;
+@synthesize pinchRecognizer  = _pinchRecognizer;
+@synthesize panRecognizer    = _panRecognizer;
 
 
 - (id)initWithFrame:(CGRect)frame options:(int)options {
@@ -40,26 +46,20 @@
         self.lastScale = 1.0;
         self.friction = FRICTION_DEFAULT; 
         self.bounceScale = BOUNCE_SCALE_DEFAULT;
+            
+        self.rotateRecognizer = [[[UIRotationGestureRecognizer alloc] initWithTarget:self 
+                                                                              action:@selector(didRotate:)] autorelease];
+        self.rotateRecognizer.delegate = self;
+            
+        self.pinchRecognizer = [[[UIPinchGestureRecognizer alloc] initWithTarget:self 
+                                                                          action:@selector(didPinch:)] autorelease];
+        self.pinchRecognizer.delegate = self;
+            
+        self.panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self 
+                                                                      action:@selector(didPan:)] autorelease];
+        self.panRecognizer.delegate = self;
+        
         self.options = options;
-        
-        if ((self.options & MotionOptionStatic) == NO) {
-            
-            UIRotationGestureRecognizer *rotateRecognizer = [[[UIRotationGestureRecognizer alloc] initWithTarget:self 
-                                                                                                          action:@selector(didRotate:)] autorelease];
-            rotateRecognizer.delegate = self;
-            [self addGestureRecognizer:rotateRecognizer];
-            
-            UIPinchGestureRecognizer *pinchRecognizer = [[[UIPinchGestureRecognizer alloc] initWithTarget:self 
-                                                                                                   action:@selector(didPinch:)] autorelease];
-            pinchRecognizer.delegate = self;
-            [self addGestureRecognizer:pinchRecognizer];
-            
-            UIPanGestureRecognizer *panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self 
-                                                                                             action:@selector(didPan:)] autorelease];
-            panRecognizer.delegate = self;
-            [self addGestureRecognizer:panRecognizer];
-        }
-        
         
 //        [[NSNotificationCenter defaultCenter] addObserver:self
 //                                                 selector:@selector(didChangeOrientation:)
@@ -71,7 +71,37 @@
 
 - (id)initWithFrame:(CGRect)frame
 {
-    return [self initWithFrame:frame options:MotionOptionSlidingStop | TapOptionBounce];
+    return [self initWithFrame:frame options:(PanningOptionSlidingStop | TapOptionBounce | PinchOptionOn | RotateOptionOn)];
+}
+
+
+- (void)dealloc {
+    self.rotateRecognizer = nil;
+    self.pinchRecognizer = nil;
+    self.panRecognizer = nil;
+    
+    [super dealloc];
+}
+
+
+- (void)setOptions:(int)options {
+    [self removeGestureRecognizer:self.rotateRecognizer];
+    [self removeGestureRecognizer:self.panRecognizer];
+    [self removeGestureRecognizer:self.pinchRecognizer];
+    
+    _options = options;
+    
+    if (((self.options & PanningOptionOff) != PanningOptionOff)) {
+        [self addGestureRecognizer:self.panRecognizer];
+    }
+
+    if ((self.options & RotateOptionOff) != RotateOptionOff) {
+        [self addGestureRecognizer:self.rotateRecognizer];
+    }
+    
+    if (!(self.options & PinchOptionOff) != PinchOptionOff) {
+        [self addGestureRecognizer:self.pinchRecognizer];
+    }
 }
 
 
@@ -85,6 +115,7 @@
             [[self superview] bringSubviewToFront:self];
     }  
 }
+
 
 - (void)bounce 
 {
@@ -135,26 +166,23 @@
 {    
     [[self superview] bringSubviewToFront:self];
     
-    if (!((self.options & MotionOptionNoPanning) == MotionOptionNoPanning)) {
+    if ([sender state] == UIGestureRecognizerStateBegan || [sender state] == UIGestureRecognizerStateChanged) 
+    {
+        CGPoint translation = [sender translationInView:[self superview]];
+        self.center = CGPointMake(self.center.x + translation.x, self.center.y + translation.y);
+        
+        [sender setTranslation:CGPointZero inView:[self superview]];
+    }
     
-        if ([sender state] == UIGestureRecognizerStateBegan || [sender state] == UIGestureRecognizerStateChanged) 
+    if ([sender state] == UIGestureRecognizerStateEnded) 
+    {
+        if (self.options & PanningOptionSlidingStop) 
         {
             CGPoint translation = [sender translationInView:[self superview]];
-            self.center = CGPointMake(self.center.x + translation.x, self.center.y + translation.y);
-            
-            [sender setTranslation:CGPointZero inView:[self superview]];
-        }
-        
-        if ([sender state] == UIGestureRecognizerStateEnded) 
-        {
-            if (self.options & MotionOptionSlidingStop) 
-            {
-                CGPoint translation = [sender translationInView:[self superview]];
-                CGPoint velocity = [sender velocityInView:[self superview]];
-                CGPoint finish = CGPointMake(self.center.x + translation.x + (self.friction * velocity.x), 
-                                                 self.center.y + translation.y + (self.friction * velocity.y));
-                [self slideToPosition:finish];
-            }
+            CGPoint velocity = [sender velocityInView:[self superview]];
+            CGPoint finish = CGPointMake(self.center.x + translation.x + (self.friction * velocity.x), 
+                                             self.center.y + translation.y + (self.friction * velocity.y));
+            [self slideToPosition:finish];
         }
     }
 }
@@ -218,11 +246,5 @@
     return YES;
 }
 
-//#pragma mark - UIDeviceOrientationDidChangeNotification
-//
-//- (void)didChangeOrientation:(NSNotification *)notification
-//{
-//    return;
-//}
 
 @end
