@@ -61,9 +61,9 @@
         }
         
         
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didChangeOrientation:)
-                                                     name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+//        [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                 selector:@selector(didChangeOrientation:)
+//                                                     name:@"UIDeviceOrientationDidChangeNotification" object:nil];
     }
     
     return self;
@@ -218,11 +218,11 @@
     return YES;
 }
 
-#pragma mark - UIDeviceOrientationDidChangeNotification
-
-- (void)didChangeOrientation:(NSNotification *)notification
-{
-    return;
-}
+//#pragma mark - UIDeviceOrientationDidChangeNotification
+//
+//- (void)didChangeOrientation:(NSNotification *)notification
+//{
+//    return;
+//}
 
 @end
