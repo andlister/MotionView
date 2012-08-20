@@ -12,6 +12,7 @@
 #define BOUNCE_SCALE_DEFAULT  0.02f
 #define MIN_SCALE_DEFAULT     0.5f
 
+#define DEBUG_LOG   1
 
 @interface MotionView ()
 
@@ -20,8 +21,6 @@
 @property (nonatomic, retain) UIRotationGestureRecognizer *rotateRecognizer;
 @property (nonatomic, retain) UIPinchGestureRecognizer    *pinchRecognizer;
 @property (nonatomic, retain) UIPanGestureRecognizer      *panRecognizer;
-
-- (void)bounce;
 
 @end
 
@@ -38,7 +37,8 @@
 @synthesize panRecognizer    = _panRecognizer;
 
 
-- (id)initWithFrame:(CGRect)frame options:(int)options {
+- (id)initWithFrame:(CGRect)frame options:(int)options
+{
     self = [super initWithFrame:frame];
     if (self) 
     {
@@ -69,13 +69,15 @@
     return self;
 }
 
+
 - (id)initWithFrame:(CGRect)frame
 {
     return [self initWithFrame:frame options:(PanningOptionSlidingStop | TapOptionBounce | PinchOptionOn | RotateOptionOn)];
 }
 
 
-- (void)dealloc {
+- (void)dealloc
+{
     self.rotateRecognizer = nil;
     self.pinchRecognizer = nil;
     self.panRecognizer = nil;
@@ -84,7 +86,8 @@
 }
 
 
-- (void)setOptions:(int)options {
+- (void)setOptions:(int)options
+{
     [self removeGestureRecognizer:self.rotateRecognizer];
     [self removeGestureRecognizer:self.panRecognizer];
     [self removeGestureRecognizer:self.pinchRecognizer];
@@ -119,16 +122,22 @@
 
 - (void)bounce 
 {
+    CGAffineTransform currentTransform = self.transform;
+    
     [UIView animateWithDuration:0.2 animations:^(void) {
-        self.transform = CGAffineTransformScale(self.transform, self.lastScale+self.bounceScale, self.lastScale+self.bounceScale);
+        DLog(@"\nself.lastScale = %f\nself.bounceScale = %f\n", self.lastScale, self.bounceScale);
+        self.transform = CGAffineTransformScale(self.transform,
+                                                self.lastScale + self.bounceScale,
+                                                self.lastScale + self.bounceScale);
         [[self superview] bringSubviewToFront:self];
         
     }completion:^(BOOL finished) {
         [UIView animateWithDuration:0.2 animations:^(void) {
-            self.transform = CGAffineTransformIdentity;
+            self.transform = currentTransform;
         }];
     }];
 }
+
 
 - (CGPoint)adjustForScreenRestraints:(CGPoint)input
 {
@@ -148,6 +157,7 @@
     return output;
 }
 
+
 - (void)slideToPosition:(CGPoint)position
 {
     CGPoint finish = [self adjustForScreenRestraints:position];
@@ -158,6 +168,7 @@
         
     } completion:^(BOOL finished) { }];
 }
+
 
 #pragma mark - UIGestureRecognizerDelegate
 
@@ -187,6 +198,7 @@
     }
 }
 
+
 - (void)didRotate:(UIRotationGestureRecognizer *)sender 
 {    
     [[self superview] bringSubviewToFront:self];
@@ -202,6 +214,7 @@
 	self.transform = CGAffineTransformRotate(self.transform, rotation);
 	self.angle = [sender rotation];
 }
+
 
 - (void)didPinch:(UIPinchGestureRecognizer *)sender 
 {
@@ -224,6 +237,7 @@
     }
 }
 
+
 - (void)didTap:(UITapGestureRecognizer *)sender 
 {    
     float scale = 0.01;
@@ -240,6 +254,7 @@
         }];
     }];
 }
+
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer 
 {   
