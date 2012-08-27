@@ -16,11 +16,11 @@
 
 @interface MotionView ()
 
-@property (nonatomic, assign) float                       angle;
-@property (nonatomic, assign) float                       lastScale;
-@property (nonatomic, retain) UIRotationGestureRecognizer *rotateRecognizer;
-@property (nonatomic, retain) UIPinchGestureRecognizer    *pinchRecognizer;
-@property (nonatomic, retain) UIPanGestureRecognizer      *panRecognizer;
+@property (nonatomic) float                       angle;
+@property (nonatomic) float                       lastScale;
+@property (nonatomic) UIRotationGestureRecognizer *rotateRecognizer;
+@property (nonatomic) UIPinchGestureRecognizer    *pinchRecognizer;
+@property (nonatomic) UIPanGestureRecognizer      *panRecognizer;
 
 @end
 
@@ -47,16 +47,16 @@
         self.friction = FRICTION_DEFAULT; 
         self.bounceScale = BOUNCE_SCALE_DEFAULT;
             
-        self.rotateRecognizer = [[[UIRotationGestureRecognizer alloc] initWithTarget:self 
-                                                                              action:@selector(didRotate:)] autorelease];
+        self.rotateRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self 
+                                                                              action:@selector(didRotate:)];
         self.rotateRecognizer.delegate = self;
             
-        self.pinchRecognizer = [[[UIPinchGestureRecognizer alloc] initWithTarget:self 
-                                                                          action:@selector(didPinch:)] autorelease];
+        self.pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self 
+                                                                          action:@selector(didPinch:)];
         self.pinchRecognizer.delegate = self;
             
-        self.panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self 
-                                                                      action:@selector(didPan:)] autorelease];
+        self.panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self 
+                                                                      action:@selector(didPan:)];
         self.panRecognizer.delegate = self;
         
         self.options = options;
@@ -76,14 +76,6 @@
 }
 
 
-- (void)dealloc
-{
-    self.rotateRecognizer = nil;
-    self.pinchRecognizer = nil;
-    self.panRecognizer = nil;
-    
-    [super dealloc];
-}
 
 
 - (void)setOptions:(int)options

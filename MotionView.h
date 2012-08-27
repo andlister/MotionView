@@ -47,15 +47,15 @@ typedef enum
 
 // An options property that defines the pan and tap gesture characteristics
 // Default is MotionOptionSliding | TapOptionBounce
-@property (nonatomic, assign) int   options;
+@property (nonatomic) int   options;
 
 // Sets the friction value when sliding to a stop. 
 // Default: 0.15
-@property (nonatomic, assign) float friction;
+@property (nonatomic) float friction;
 
 // Sets how much the view scales during a bounce animation. 
 // Default: 0.02
-@property (nonatomic, assign) float bounceScale;
+@property (nonatomic) float bounceScale;
 
 - (id)initWithFrame:(CGRect)frame options:(int)options;
 
